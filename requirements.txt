@@ -1,0 +1,12 @@
+# Requirements for development
+
+setuptools_scm
+build
+black
+pytest
+pytest-cov
+pytest-asyncio
+isort
+tox
+wheel
+-e .

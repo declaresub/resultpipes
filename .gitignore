@@ -1,0 +1,8 @@
+.venv/
+.coverage
+.python-version
+build/
+dist/
+*.code-workspace
+*.egg-info
+*.pyc
