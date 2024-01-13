@@ -1,7 +1,7 @@
 from importlib.metadata import PackageNotFoundError, metadata
 
 from .catch import acatch, catch
-from .pipe import APipeable, Pipeable, pipeable
+from .pipe import APipeable, Pipeable, failure, pipeable, success
 from .result import Failure, Result, Success
 
 __all__ = [
@@ -12,6 +12,8 @@ __all__ = [
     "APipeable",
     "pipeable",
     "acatch",
+    "success",
+    "failure",
     "catch",
 ]
 
