@@ -281,11 +281,9 @@ def pipeable(f: P_s[X, Y, E] | P_a[X, Y, E]) -> Pipeable[X, Y, E] | APipeable[X,
 
 
 @overload
-def success(
+def success(  # pyright: ignore [reportOverlappingOverload]
     f: Callable[P, Coroutine[Any, Any, R]]
-) -> Callable[
-    P, Coroutine[Any, Any, Result[R, Never]]
-]:  # pyright: ignore [reportOverlappingOverload]
+) -> Callable[P, Coroutine[Any, Any, Result[R, Never]]]:
     ...  # pragma: no cover
 
 
@@ -318,11 +316,9 @@ def success(
 
 
 @overload
-def failure(
+def failure(  # pyright: ignore [reportOverlappingOverload]
     f: Callable[P, Coroutine[Any, Any, R]]
-) -> Callable[
-    P, Coroutine[Any, Any, Result[Never, R]]
-]:  # pyright: ignore [reportOverlappingOverload]
+) -> Callable[P, Coroutine[Any, Any, Result[Never, R]]]:
     ...  # pragma: no cover
 
 
