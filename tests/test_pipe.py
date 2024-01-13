@@ -214,28 +214,31 @@ def test_success():
     @success
     def f(x: str):
         return x
-    
-    assert f('test') == Success('test')
+
+    assert f("test") == Success("test")
+
 
 @pytest.mark.asyncio
 async def test_success_async():
     @success
     async def f(x: str):
         return x
-    
-    assert await f('test') == Success('test')
+
+    assert await f("test") == Success("test")
+
 
 def test_failure():
     @failure
     def f(x: str):
         return x
-    
-    assert f('test') == Failure('test')
+
+    assert f("test") == Failure("test")
+
 
 @pytest.mark.asyncio
 async def test_failure_async():
     @failure
     async def f(x: str):
         return x
-    
-    assert await f('test') == Failure('test')
+
+    assert await f("test") == Failure("test")

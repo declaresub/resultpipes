@@ -21,25 +21,29 @@ def log_exception(
     log_exc(exc)
     return exc
 
+
 @overload
-def catch() -> Callable[[Callable[P, Result[S, E]]], Callable[P, Result[S, E | Exception]]]:
+def catch() -> (
+    Callable[[Callable[P, Result[S, E]]], Callable[P, Result[S, E | Exception]]]
+):
     ...  # pragma: no cover
+
 
 @overload
 def catch(
     handle_exc: Callable[[Exception], E1]
 ) -> Callable[[Callable[P, Result[S, E]]], Callable[P, Result[S, E | E1]]]:
-    ... # pragma: no cover
+    ...  # pragma: no cover
 
 
 # Because catch, acatch have the same parameters, we can't overload catch to replace acatch.
-# and we have to declare handle_exc as optional and set the default in the function to get both pyright 
+# and we have to declare handle_exc as optional and set the default in the function to get both pyright
 # and mypy to be happy.
 def catch(
     handle_exc: Callable[[Exception], E1] | None = None
 ) -> Callable[[Callable[P, Result[S, E]]], Callable[P, Result[S, E | E1]]]:
     if handle_exc is None:
-        handle_exc = cast(Callable[[Exception], E1], log.exception) # pragma: no cover
+        handle_exc = cast(Callable[[Exception], E1], log.exception)  # pragma: no cover
 
     def decorator(f: Callable[P, Result[S, E]]) -> Callable[P, Result[S, E | E1]]:
         @wraps(f)
@@ -53,13 +57,17 @@ def catch(
 
     return decorator
 
+
 @overload
-def acatch() -> Callable[
-    [Callable[P, Coroutine[Any, Any, Result[S, E]]]],
-    Callable[P, Coroutine[Any, Any, Result[S, E | Exception]]],
-]:
-   ...  # pragma: no cover
- 
+def acatch() -> (
+    Callable[
+        [Callable[P, Coroutine[Any, Any, Result[S, E]]]],
+        Callable[P, Coroutine[Any, Any, Result[S, E | Exception]]],
+    ]
+):
+    ...  # pragma: no cover
+
+
 @overload
 def acatch(
     handle_exc: Callable[[Exception], E1]
@@ -77,7 +85,7 @@ def acatch(
     Callable[P, Coroutine[Any, Any, Result[S, E | E1]]],
 ]:
     if handle_exc is None:
-        handle_exc = cast(Callable[[Exception], E1], log.exception) # pragma: no cover
+        handle_exc = cast(Callable[[Exception], E1], log.exception)  # pragma: no cover
 
     def decorator(
         f: Callable[P, Coroutine[Any, Any, Result[S, E]]]

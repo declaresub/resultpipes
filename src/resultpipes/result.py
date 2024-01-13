@@ -25,7 +25,6 @@ class _Result(Generic[R]):
 
     def __init__(self, value: Any = True):
         self._value = value.value if isinstance(value, self.__class__) else value
-            
 
     def __eq__(self, __value: object) -> bool | NotImplementedType:
         return (
