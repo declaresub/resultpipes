@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-from functools import partial
+from functools import partial, wraps
 from typing import (
     Any,
     Callable,
     Coroutine,
     Generic,
+    Never,
+    ParamSpec,
     TypeAlias,
     TypeGuard,
     TypeVar,
@@ -37,6 +39,9 @@ Z = TypeVar("Z")
 E = TypeVar('E')
 E1 = TypeVar("E1")
 Y1 = TypeVar("Y1")
+P = ParamSpec('P')
+R = TypeVar('R')
+
 
 P_s: TypeAlias = Callable[[X], Result[Y, E]]
 # type P_s[X, Y, E] = Callable[[X], Result[Y, E]]
@@ -258,3 +263,55 @@ def pipeable(f: P_s[X, Y, E] | P_a[X, Y, E]) -> Pipeable[X, Y, E] | APipeable[X,
     else:
         assert is_not_async_callable(f)
         return Pipeable(f)
+
+
+@overload
+def success(f: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, Coroutine[Any, Any, Result[R, Never]]]:  # pyright: ignore [reportOverlappingOverload]
+    ... # pragma: no cover
+
+@overload
+def success(f: Callable[P, R]) -> Callable[P, Result[R, Never]]:
+    ... # pragma: no cover
+
+
+def success(f: Callable[P, R] | Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, Result[R, Never]] | Callable[P, Coroutine[Any, Any, Result[R, Never]]]:
+    """decorator that transforms a function f with return type T to a function that returns Result[T, Never]."""
+    if is_async_callable(f):
+        async def _a(*args: P.args, **kwargs: P.kwargs) -> Result[R, Never]:
+            x = await f(*args, **kwargs)
+            return Success(x)
+        return _a
+    else:
+        assert is_not_async_callable(f)
+        #f = cast(Callable[P, R], f)
+        @wraps(f)
+        def _f(*args: P.args, **kwargs: P.kwargs) -> Result[R, Never]:
+            x = f(*args, **kwargs)
+            return Success(x)
+        return _f
+
+
+@overload
+def failure(f: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, Coroutine[Any, Any, Result[Never, R]]]: # pyright: ignore [reportOverlappingOverload]
+    ... # pragma: no cover
+
+@overload
+def failure(f: Callable[P, R]) -> Callable[P, Result[Never, R]]:
+    ... # pragma: no cover
+
+
+def failure(f: Callable[P, R] | Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, Result[Never, R]] | Callable[P, Coroutine[Any, Any, Result[Never, R]]]:
+    """decorator that transforms a function f with return type T to a function that returns Result[T, Never]."""
+    if is_async_callable(f):
+        async def _a(*args: P.args, **kwargs: P.kwargs) -> Result[Never, R]:
+            x = await f(*args, **kwargs)
+            return Failure(x)
+        return _a
+    else:
+        assert is_not_async_callable(f)
+        #f = cast(Callable[P, R], f)
+        @wraps(f)
+        def _f(*args: P.args, **kwargs: P.kwargs) -> Result[Never, R]:
+            x = f(*args, **kwargs)
+            return Failure(x)
+        return _f
